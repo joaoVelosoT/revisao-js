@@ -1,81 +1,67 @@
 const usuarios = [];
 let proxId = 0;
 
-export const cadastrarUsuario = ({ id, nome, idade }) => {
-  if (!nome || !idade) {
-    return {
-      status: 400,
-      erro: "Dados Incompletos",
-      mensagem:
-        "Os campos 'nome,idade' são obrigatórios para realizar o cadastro.",
-    };
+export const cadastrarUsuario = (dados) => {
+  if (!dados || typeof dados !== "object" || Array.isArray(dados)) {
+    return criarResposta(400, "Os dados do usuario são invalidos");
+  }
+  const { nome, idade } = dados;
+
+  if (typeof nome !== "string" || nome.trim() === "") {
+    return criarResposta(400, "O nome deve ser um texto não vazio");
   }
 
-  usuarios.push({ id: (proxId += 1), nome, idade });
-  return {
-    status: 200,
-    mensagem: "Usuario criado com sucesso",
-  };
+  if (!Number.isInteger(idade) || idade <= 0) {
+    return criarResposta(
+      400,
+      "A idade tem que ser um numero inteiro, e não pode ser negativo",
+    );
+  }
+
+  const user = { id: (proxId += 1), nome: nome.trim(), idade };
+  usuarios.push(user);
+  return criarResposta(201, "Usuario criado com sucesso", user);
 };
 
 export const buscarUsuarioID = (id) => {
-  if (!id) {
-    return {
-      status: 400,
-      erro: "Dados Incompletos",
-      mensagem: "O campo 'id' é obrigatório para buscar um usuario.",
-    };
+  if (!Number.isInteger(id) || id <= 0) {
+    return criarResposta(400, "O campo 'id' e obrigatorio, inteiro e positivo");
   }
 
   const usuario = usuarios.find((usuario) => usuario.id === id);
   if (!usuario) {
-    return {
-      status: 400,
-      erro: "Usuario não encontrado",
-    };
+    return criarResposta(404, "Usuario não encontrado");
   }
 
-  return {
-    dados: { ...usuario },
-    status: 200,
-    mensagem: "Usuario encontrado",
-  };
+  return criarResposta(200, "Usuario encontrado", { ...usuario });
 };
 
 export const listarUsuarios = () => {
-  return {
-    code: 200,
-    mensagem: "Usuarios encontrados",
-    dados: [...usuarios],
-  };
+  return criarResposta(200, "Usuarios encontrados", [...usuarios]);
 };
 
 export const contarUsuarios = () => {
-  return {
-    code: 200,
+  return criarResposta(200, "Quantidade contabilizada", {
     quantidadeUsuarios: usuarios.length,
-  };
+  });
 };
 
 export const deletarUsuario = (id) => {
+  if (!Number.isInteger(id) || id <= 0) {
+    return criarResposta(400, "O campo 'id' e obrigatorio, inteiro e positivo");
+  }
   const usuario = usuarios.find((usuario) => usuario.id === id);
   if (!usuario) {
-    return {
-      code: 400,
-      mensagem: "Não foi encontrado o usuario",
-    };
+    return criarResposta(404, "Usuario não encontrado");
   }
 
   usuarios.splice(usuarios.indexOf(usuario), 1);
 
-  return {
-    code: 200,
-    mensagem: "Usuario deletado",
-  };
+  return criarResposta(200, "Usuario deletado");
 };
 
 export const gerarRelatorio = () => {
-  return usuarios.reduce(
+  const relatorio = usuarios.reduce(
     (acc, element) => {
       acc.quantidadeUsuarios += 1;
       acc.nomesUsuarios.push(element.nome);
@@ -89,4 +75,14 @@ export const gerarRelatorio = () => {
       mediaIdade: 0,
     },
   );
+
+  return criarResposta(200, "Relatorio gerado", relatorio);
+};
+
+export const criarResposta = (status, mensagem, dados = null) => {
+  return {
+    status,
+    mensagem,
+    dados,
+  };
 };
