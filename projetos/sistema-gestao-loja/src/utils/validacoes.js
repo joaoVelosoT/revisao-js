@@ -28,7 +28,12 @@ export const validarEmail = (email) => {
 };
 
 export const validarObjeto = (objeto) => {
-  if (typeof objeto !== "object" || !objeto || Array.isArray(objeto)) {
+  if (
+    typeof objeto !== "object" ||
+    !objeto ||
+    Array.isArray(objeto) ||
+    Object.keys(objeto).length === 0
+  ) {
     return false;
   }
   return true;

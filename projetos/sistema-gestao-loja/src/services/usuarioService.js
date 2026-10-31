@@ -95,16 +95,25 @@ export const atualizarUsuario = (id, dados) => {
 
   const { nome, idade, email, ativo } = dados;
 
-  if (nome) {
+  const usuario = usuarios.find((usuario) => usuario.id === id);
+  const dadosNovos = {};
+  if (!usuario) {
+    return criarResposta(404, "Usuario não encontrado");
+  }
+
+
+
+  if ("nome" in dados) {
     if (!validarString(nome)) {
       return criarResposta(
         400,
         "Nome invalido, o nome precisar ser uma string e não pode ser feito de espaços em branco",
       );
     }
+    dadosNovos.nome = nome.trim();
   }
 
-  if (email) {
+  if ("email" in dados) {
     // validar se o email e valido
     if (!validarEmail(email)) {
       return criarResposta(
@@ -115,45 +124,38 @@ export const atualizarUsuario = (id, dados) => {
 
     // validar se já não existe esse email cadastrado
     const existeEmail = usuarios.find((usuario) => {
-      if (usuario.email === email) {
-        if(usuario.id === id){
-
-        }
-      }
-      if(usuario.email === email){
-        return true
+      if (usuario.email === email.trim().toLocaleLowerCase()) {
+        return true;
       }
     });
-    console.log(existeEmail);
 
-    if (existeEmail) {
+    if (existeEmail && existeEmail.id !== id) {
       return criarResposta(400, "Esse email já está sendo utilizado");
     }
+
+    dadosNovos.email = email.trim().toLocaleLowerCase();
   }
 
-  if (idade) {
+  if ("idade" in dados) {
     if (!validarNumeroPositivo(idade)) {
       return criarResposta(
         400,
         "A idade precisa ser um numero, e não pode ser menor ou igual de 0",
       );
     }
+    dadosNovos.idade = idade;
   }
 
-  if (typeof ativo !== "boolean" && typeof ativo !== "undefined") {
-    return criarResposta(400, "O Ativo precisa ser um boolean");
+  if ("ativo" in dados) {
+    if (typeof ativo !== "boolean") {
+      return criarResposta(400, "O ativo tem que ser boolean");
+    }
+    dadosNovos.ativo = ativo;
   }
 
-  const usuario = usuarios.find((usuario) => usuario.id === id);
+  
 
-  if (!usuario) {
-    return criarResposta(404, "Usuario não encontrado");
-  }
-
-  usuario.nome = nome || usuario.nome;
-  usuario.email = email || usuario.email;
-  usuario.idade = idade || usuario.idade;
-  usuario.ativo = ativo || usuario.ativo;
+  Object.assign(usuario, dadosNovos);
 
   return criarResposta(200, "Usuario atualizado", { ...usuario });
 };

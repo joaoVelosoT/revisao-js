@@ -7,16 +7,16 @@ import {
 
 console.log(
   cadastrarUsuario({
-    nome: "       a           ",
+    nome: "       joao          ",
     idade: 1,
     email: "            a@email.com             ",
   }),
 );
 
-cadastrarUsuario({
-    nome: "       a           ",
-    idade: 1,
-    email: "            a2@email.com             ",
+console.log(
+  atualizarUsuario(1, {
+    
   }),
+);
 
-console.log(atualizarUsuario(1, {nome : "maria", idade : 21, email :"a@email.com" }));
+// console.log(buscarUsuarioPorId(1));
