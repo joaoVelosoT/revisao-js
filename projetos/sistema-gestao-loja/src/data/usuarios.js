@@ -4,8 +4,4 @@ export const addProxId = () => {
   return (proxId += 1);
 };
 
-export const usuarios = [
-  
-];
-
-
+export const usuarios = [];
