@@ -1,16 +1,7 @@
-export let proxId = 1;
+export let proxIdProduto = 1;
 
-export const addProxId = () => {
-  return (proxId += 1);
+export const addProxIdProduto = () => {
+  return (proxIdProduto += 1);
 };
 
-export const produtos = [
-  {
-    id: 1,
-    nome: "Notebook",
-    categoria: "Eletrônicos",
-    preco: 3500,
-    quantidadeEstoque: 10,
-    ativo: true,
-  },
-];
+export const produtos = [];
