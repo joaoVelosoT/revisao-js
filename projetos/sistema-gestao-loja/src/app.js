@@ -1,4 +1,5 @@
 import {
+  atualizarProduto,
   buscarProdutoPorId,
   cadastrarProduto,
   listarProdutos,
@@ -13,15 +14,31 @@ import {
   listarUsuarios,
 } from "./services/usuarioService.js";
 
-// console.log(listarProdutos())
-console.log(
-  cadastrarProduto({nome : "teste",categoria : "Eletrônicos", preco : 1, quantidadeEstoque : 1 }),
-);
+cadastrarProduto({
+  nome: "notebook",
+  preco: 10,
+  categoria: "eletrônicos",
+  quantidadeEstoque: 10,
+});
+cadastrarProduto({
+  nome: "celular",
+  preco: 10,
+  categoria: "eletrônicos",
+  quantidadeEstoque: 10,
+});
+cadastrarProduto({
+  nome: "notebook",
+  preco: 10,
+  categoria: "limpeza",
+  quantidadeEstoque: 10,
+});
+cadastrarProduto({
+  nome: "sofá",
+  preco: 10,
+  categoria: "móveis",
+  quantidadeEstoque: 10,
+});
 
-console.log(
-  cadastrarProduto({nome : "teste",categoria : "móveis", preco : 1, quantidadeEstoque : 1 }),
-);
+console.log(listarProdutos());
 
-console.log("=================================")
-console.log(listarProdutos())
-console.log("=================================")
+console.log(atualizarProduto(1, { nome: "cama", categoria: "móveis"}));

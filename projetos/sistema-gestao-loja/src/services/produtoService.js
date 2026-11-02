@@ -8,6 +8,10 @@ import {
 } from "../utils/validacoes.js";
 
 export const listarProdutos = () => {
+  if (produtos.length <= 0) {
+    return criarResposta(404, "Nenhum produto foi cadastrado");
+  }
+
   return criarResposta(
     200,
     "Todos os produtos encontrados.",
@@ -28,7 +32,6 @@ export const buscarProdutoPorId = (id) => {
   return criarResposta(200, "Produto encontrado.", structuredClone(produto));
 };
 
-// @type {Produto}
 export const cadastrarProduto = (dados) => {
   if (!validarObjeto(dados)) {
     return criarResposta(
@@ -84,7 +87,6 @@ export const cadastrarProduto = (dados) => {
       produto.categoria === categoria.trim().toLowerCase(),
   );
 
-
   if (existeProduto) {
     return criarResposta(
       400,
@@ -110,4 +112,146 @@ export const cadastrarProduto = (dados) => {
     "Produto criado com sucesso",
     structuredClone(produto),
   );
+};
+
+export const atualizarProduto = (id, dados) => {
+  if (!validarNumeroPositivo(id)) {
+    return criarResposta(400, "O ID precisa ser um número maior que zero.");
+  }
+
+  if (!validarObjeto(dados)) {
+    return criarResposta(
+      400,
+      "Os dados precisam ser enviados para o cadastro do produto.",
+    );
+  }
+
+  const produto = produtos.find((produto) => produto.id === id);
+  if (!produto) {
+    return criarResposta(404, "Produto não encontrado");
+  }
+
+  const { nome, categoria, preco, quantidadeEstoque, ativo } = dados;
+  var dadosNovos = {};
+  if (
+    !("nome" in dados) &&
+    !("categoria" in dados) &&
+    !("preco" in dados) &&
+    !("quantidadeEstoque" in dados) &&
+    !("ativo" in dados)
+  ) {
+    return criarResposta(
+      400,
+      "Nenhum dos dados enviados pode ser utilizado para atualizar o produto.",
+    );
+  }
+
+  if ("nome" in dados) {
+    if (!validarString(nome)) {
+      return criarResposta(
+        400,
+        "Nome inválido. O nome precisa ser uma string e não pode conter apenas espaços em branco.",
+      );
+    }
+    dadosNovos.nome = nome;
+  }
+
+  if ("categoria" in dados) {
+    if (typeof categoria !== "string") {
+      return criarResposta(400, {
+        mensagem: "Categoria invalida",
+        categoriasValidas: structuredClone(categorias),
+      });
+    }
+    if (!categorias.includes(categoria.trim().toLowerCase())) {
+      return criarResposta(400, {
+        mensagem: "Categoria invalida",
+        categoriasValidas: structuredClone(categorias),
+      });
+    }
+
+    dadosNovos.categoria = categoria;
+  }
+
+  if ("preco" in dados) {
+    // validar preco
+    if (typeof preco !== "number" || preco <= 0) {
+      return criarResposta(
+        400,
+        "O preço é um número não pode ser menor ou igual a 0",
+      );
+    }
+    dadosNovos.preco = preco;
+  }
+
+  if ("quantidadeEstoque" in dados) {
+    if (!Number.isInteger(quantidadeEstoque) || quantidadeEstoque < 0) {
+      return criarResposta(
+        400,
+        "A quantidade do produto precisa ser positiva e maior ou igual a zero",
+      );
+    }
+    dadosNovos.quantidadeEstoque = quantidadeEstoque;
+  }
+
+  if ("ativo" in dados) {
+    if (typeof ativo !== "boolean") {
+      return criarResposta(400, "O campo ativo precisa ser um valor booleano.");
+    }
+
+    dadosNovos.ativo = ativo;
+  }
+
+  // se for atualzar o nome e a categoria, validar se já não tem esse nome na nova categoria
+  if ("nome" in dadosNovos && "categoria" in dados) {
+    // validar se na categoria nova já não tem o nome novo
+    const existeProduto = produtos.find(
+      (produto) =>
+        produto.nome === nome.trim().toLowerCase() &&
+        produto.categoria === categoria.trim().toLowerCase(),
+    );
+
+    if (existeProduto) {
+      return criarResposta(
+        400,
+        "Já existe produto com esse nome nessa categoria",
+      );
+    }
+  }
+
+  // se for atualizar apenas o nome, validar se na categoria padrão já não tem esse nome
+  if ("nome" in dadosNovos && !("categoria" in dados)) {
+    const existeProduto = produtos.find(
+      (element) =>
+        element.nome === nome.trim().toLowerCase() &&
+        element.categoria === produto.categoria,
+    );
+
+    if (existeProduto) {
+      return criarResposta(
+        400,
+        "Já existe produto com esse nome nessa categoria",
+      );
+    }
+  }
+
+  // se for atualizar apenas a categoria, validar se na categoria enviada, já não existe um produto com esse nome
+  if ("categoria" in dadosNovos && !('nome' in dadosNovos)) {
+    const existeProduto = produtos.find(
+      (element) =>
+        element.nome === produto.nome &&
+        element.categoria === dadosNovos.categoria,
+    );
+    if (existeProduto) {
+      return criarResposta(
+        400,
+        "Na categoria enviada já tem um produto com o nome original ",
+      );
+    }
+  }
+
+  Object.assign(produto, dadosNovos);
+
+  return criarResposta(200, "Produto atualizado", structuredClone(produto));
+  
 };
