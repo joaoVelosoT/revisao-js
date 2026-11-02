@@ -15,30 +15,11 @@ import {
 
 // console.log(listarProdutos())
 console.log(
-  cadastrarProduto({
-    nome: "nome",
-    categoria: "eletrônicos",
-    preco: 1.1,
-    quantidadeEstoque: 1,
-  }),
+  cadastrarProduto({nome : "teste",categoria : "Eletrônicos", preco : 1, quantidadeEstoque : 1 }),
 );
 
 console.log(
-  cadastrarProduto({
-    nome: "notebook",
-    categoria: "limpeza",
-    preco: 12,
-    quantidadeEstoque: 11,
-  }),
-);
-
-console.log(
-  cadastrarProduto({
-    nome: "noteebook",
-    categoria: "limpeza",
-    preco: 12,
-    quantidadeEstoque: 11,
-  }),
+  cadastrarProduto({nome : "teste",categoria : "móveis", preco : 1, quantidadeEstoque : 1 }),
 );
 
 console.log("=================================")

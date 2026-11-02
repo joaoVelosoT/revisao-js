@@ -84,6 +84,7 @@ export const cadastrarProduto = (dados) => {
       produto.categoria === categoria.trim().toLowerCase(),
   );
 
+
   if (existeProduto) {
     return criarResposta(
       400,
@@ -93,8 +94,8 @@ export const cadastrarProduto = (dados) => {
 
   const produto = {
     id: proxIdProduto,
-    nome,
-    categoria,
+    nome: nome.trim().toLowerCase(),
+    categoria: categoria.trim().toLowerCase(),
     preco,
     quantidadeEstoque,
     ativo: true,
