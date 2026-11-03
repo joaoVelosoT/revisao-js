@@ -236,7 +236,7 @@ export const atualizarProduto = (id, dados) => {
   }
 
   // se for atualizar apenas a categoria, validar se na categoria enviada, já não existe um produto com esse nome
-  if ("categoria" in dadosNovos && !('nome' in dadosNovos)) {
+  if ("categoria" in dadosNovos && !("nome" in dadosNovos)) {
     const existeProduto = produtos.find(
       (element) =>
         element.nome === produto.nome &&
@@ -253,5 +253,73 @@ export const atualizarProduto = (id, dados) => {
   Object.assign(produto, dadosNovos);
 
   return criarResposta(200, "Produto atualizado", structuredClone(produto));
-  
+};
+
+export const deletarProduto = (id) => {
+  if (!validarNumeroPositivo(id)) {
+    return criarResposta(400, "O ID precisa ser um número maior que zero.");
+  }
+
+  const produto = produtos.find((produto) => produto.id === id);
+  if (!produto) {
+    return criarResposta(404, "Produto não encontrado.");
+  }
+
+  produtos.splice(produtos.indexOf(produto), 1);
+  return criarResposta(
+    400,
+    "Produto deletado com sucesso",
+    structuredClone(produto),
+  );
+};
+
+export const filtrarProdutoEmEstoque = () => {
+  return structuredClone(
+    produtos.filter((produto) => produto.quantidadeEstoque > 0),
+  );
+};
+
+export const gerarRelatorioProdutos = () => {
+  if (!produtos) {
+    return criarResposta(404, "Nenhum produto foi cadastrado ainda");
+  }
+
+  let produtoMaisBarato = 0;
+  let produtoMaisCaro = 0;
+  const relatorio = produtos.reduce(
+    (acc, element) => {
+      acc.totalProduto += 1;
+
+      if (element.ativo) {
+        acc.produtosAtivos += 1;
+      } else {
+        acc.produtosInativos += 1;
+      }
+
+      acc.valorTotalEstoque += element.preco * element.quantidadeEstoque;
+
+      if (element.preco > produtoMaisCaro && element.preco > 0) {
+        produtoMaisCaro = element.preco;
+        acc.produtoMaisCaro = element.nome;
+      }
+      if (produtoMaisBarato > element.preco || produtoMaisBarato === 0) {
+        produtoMaisBarato = element.preco;
+        acc.produtoMaisBarato = element.nome;
+      }
+
+      acc.totalItensEstoque += element.quantidadeEstoque;
+      return acc;
+    },
+    {
+      totalProduto: 0,
+      produtosAtivos: 0,
+      produtosInativos: 0,
+      valorTotalEstoque: 0,
+      produtoMaisCaro: 0,
+      produtoMaisBarato: 0,
+      totalItensEstoque: 0,
+    },
+  );
+
+  return criarResposta(200, "Relatorio gerado.", relatorio);
 };

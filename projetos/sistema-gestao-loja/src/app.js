@@ -2,6 +2,9 @@ import {
   atualizarProduto,
   buscarProdutoPorId,
   cadastrarProduto,
+  deletarProduto,
+  filtrarProdutoEmEstoque,
+  gerarRelatorioProdutos,
   listarProdutos,
 } from "./services/produtoService.js";
 import {
@@ -15,30 +18,40 @@ import {
 } from "./services/usuarioService.js";
 
 cadastrarProduto({
-  nome: "notebook",
-  preco: 10,
+  nome: "ps5",
+  preco: 5000,
   categoria: "eletrônicos",
-  quantidadeEstoque: 10,
+  quantidadeEstoque: 112,
 });
+
 cadastrarProduto({
   nome: "celular",
-  preco: 10,
+  preco: 1111,
   categoria: "eletrônicos",
-  quantidadeEstoque: 10,
-});
-cadastrarProduto({
-  nome: "notebook",
-  preco: 10,
-  categoria: "limpeza",
-  quantidadeEstoque: 10,
-});
-cadastrarProduto({
-  nome: "sofá",
-  preco: 10,
-  categoria: "móveis",
-  quantidadeEstoque: 10,
+  quantidadeEstoque: 11,
 });
 
-console.log(listarProdutos());
+cadastrarProduto({
+  nome: "banana",
+  preco: 11011.5,
+  categoria: "alimentos",
+  quantidadeEstoque: 132,
+});
 
-console.log(atualizarProduto(1, { nome: "cama", categoria: "móveis"}));
+atualizarProduto(2, { ativo: false });
+
+// console.log(listarProdutos());
+
+// console.log(deletarProduto(2));
+// console.log(listarProdutos());
+// cadastrarProduto({
+//   nome: "monitor",
+//   preco: 10,
+//   categoria: "eletrônicos",
+//   quantidadeEstoque: 10,
+// });
+// console.log(listarProdutos());
+
+// console.log(filtrarProdutoEmEstoque())4
+
+console.log(gerarRelatorioProdutos());
