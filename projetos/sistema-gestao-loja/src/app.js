@@ -55,7 +55,7 @@ atualizarProduto(2, { ativo: false });
 //   categoria: "eletrônicos",
 //   quantidadeEstoque: 10,
 // });
-// console.log(listarProdutos());
+console.log(listarProdutos());
 
 // console.log(filtrarProdutoEmEstoque())4
 
@@ -65,4 +65,9 @@ console.log(gerarRelatorioProdutos());
 
 (cadastrarUsuario({ nome: "João Vitor", email: "joao@email.com", idade: 20 }),
   // atualizarUsuario(1,{ativo : false})
-  console.log(cadastrarPedido({ usuarioId: 1, produtos: [{ produtoId: 1 }] })));
+  console.log(
+    cadastrarPedido({
+      usuarioId: 1,
+      produtosPedido: [{ produtoId: 1, quantidade: 1 }, ,],
+    }),
+  ));

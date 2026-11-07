@@ -1,4 +1,5 @@
 import { pedidos } from "../data/pedidos.js";
+import { produtos } from "../data/produtos.js";
 import { usuarios } from "../data/usuarios.js";
 import { criarResposta } from "../utils/criarResposta.js";
 import { validarNumeroPositivo, validarObjeto } from "../utils/validacoes.js";
@@ -45,7 +46,7 @@ export const cadastrarPedido = (dados) => {
   // validar se a quantidade do produto e maior que 0, e validar se a quantidade não ultrapasse o estoque do produto
   // validar se os produtos não se repetem
   // o pedido sempre começa pendente
-  const { usuarioId, produtos } = dados;
+  const { usuarioId, produtosPedido } = dados;
 
   if (!validarNumeroPositivo(usuarioId)) {
     return criarResposta(400, "O ID precisa ser um número maior que zero.");
@@ -61,19 +62,70 @@ export const cadastrarPedido = (dados) => {
   }
 
   // validar se enviaram um array
-  if (!Array.isArray(produtos)) {
+  if (!Array.isArray(produtosPedido)) {
     return criarResposta(400, "Os produtos tem que ta em um array de objetos");
   }
 
-  // validar se no array, tem os dados corretos
-  produtos.map((produto) => {
-    // validar se tem produtoId e quantidade
-    console.log(produto);
-    if (("produtoId" in produto) === false) {
-      return criarResposta(400, "não tem produtoId");
+  //validar se no array, tem os dados corretos
+
+  const validarProdutos = produtosPedido.reduce(
+    (acc, produto) => {
+      // validar se o id e um numero positivo
+      if (!validarNumeroPositivo(produto.produtoId)) {
+        acc.produtosValidos = false;
+      }
+
+      // validar se os produtos existem
+      const produtoExiste = produtos.find(
+        (element) => element.id === produto.produtoId,
+      );
+
+      if (!produtoExiste) {
+        acc.produtoExiste = false;
+      }
+
+      // validar se a quantidade e valida
+      if (!validarNumeroPositivo(produto.quantidade)) {
+        acc.quantidadeValida = false;
+      }
+      return acc;
+    },
+    { produtosValidos: true, produtoExiste: true, quantidadeValida: true },
+  );
+
+  if (!validarProdutos.produtosValidos) {
+    return criarResposta(400, "O id de algum dos produtos são invalidos");
+  }
+
+  if (!validarProdutos.produtoExiste) {
+    return criarResposta(404, "O produto não existe");
+  }
+
+  if (!validarProdutos.quantidadeValida) {
+    return criarResposta(400, "A quantidade do produto precisa ser positiva");
+  }
+
+  // validar se já tem esse produto na lista
+
+  const ids = new Set();
+
+  const existeDuplicado = produtosPedido.some((produto) => {
+    if (ids.has(produto.produtoId)) {
+      return true;
     }
+
+    ids.add(produto.produtoId);
+    return false;
   });
 
-  console.log(produtos);
+  if (existeDuplicado) {
+    return criarResposta(400, "Não e permitido produto duplicado");
+  }
+
+  //   if (produtos.length !== validarProdutos.length) {
+  //     return criarResposta(400, "Os produtos enviados estão invalidos");
+  //   }
+
+  // console.log(validarProdutos);
   //   console.log(usuario);
 };
