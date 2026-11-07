@@ -1,4 +1,9 @@
 import {
+  cadastrarPedido,
+  listarPedidoPorId,
+  listarPedidos,
+} from "./services/pedidoService.js";
+import {
   atualizarProduto,
   buscarProdutoPorId,
   cadastrarProduto,
@@ -55,3 +60,9 @@ atualizarProduto(2, { ativo: false });
 // console.log(filtrarProdutoEmEstoque())4
 
 console.log(gerarRelatorioProdutos());
+
+// console.log(listarPedidoPorId(1));
+
+(cadastrarUsuario({ nome: "João Vitor", email: "joao@email.com", idade: 20 }),
+  // atualizarUsuario(1,{ativo : false})
+  console.log(cadastrarPedido({ usuarioId: 1, produtos: [{ produtoId: 1 }] })));

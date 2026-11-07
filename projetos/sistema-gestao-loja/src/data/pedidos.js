@@ -1,4 +1,4 @@
-const pedido = [
+export const pedidos = [
   {
     id: 1,
     usuarioId: 1,
