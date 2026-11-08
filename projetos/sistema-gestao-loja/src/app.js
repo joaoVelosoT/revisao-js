@@ -26,14 +26,14 @@ cadastrarProduto({
   nome: "ps5",
   preco: 5000,
   categoria: "eletrônicos",
-  quantidadeEstoque: 112,
+  quantidadeEstoque: 2,
 });
 
 cadastrarProduto({
   nome: "celular",
   preco: 1111,
   categoria: "eletrônicos",
-  quantidadeEstoque: 11,
+  quantidadeEstoque: 2,
 });
 
 cadastrarProduto({
@@ -43,28 +43,27 @@ cadastrarProduto({
   quantidadeEstoque: 132,
 });
 
-atualizarProduto(2, { ativo: false });
+cadastrarUsuario({ nome: "João", email: "joao@email.com", idade: 20 });
+// atualizarUsuario(1, { ativo: false });
+console.log(
+  cadastrarPedido({
+    usuarioId: 1,
+    produtosPedido: [
+      { produtoId: 1, quantidade: 1 },
+      { produtoId: 2, quantidade: 1 },
+    ],
+  }),
+);
 
-// console.log(listarProdutos());
+console.log(
+  cadastrarPedido({
+    usuarioId: 1,
+    produtosPedido: [
+      { produtoId: 1, quantidade: 1 },
+      { produtoId: 2, quantidade: 1 },
+    ],
+  }),
+);
 
-// console.log(deletarProduto(2));
-// console.log(listarProdutos());
-// cadastrarProduto({
-//   nome: "monitor",
-//   preco: 10,
-//   categoria: "eletrônicos",
-//   quantidadeEstoque: 10,
-// });
 console.log(listarProdutos());
-
-// console.log(filtrarProdutoEmEstoque())4
-
-console.log(gerarRelatorioProdutos());
-
-// console.log(listarPedidoPorId(1));
-
-(cadastrarUsuario({ nome: "João Vitor", email: "joao@email.com", idade: 20 }),
-  // atualizarUsuario(1,{ativo : false})
-  console.log(
-    cadastrarPedido({usuarioId :1, produtosPedido : [""]}),
-  ));
+// console.log(listarPedidos());

@@ -1,8 +1,9 @@
-import { pedidos } from "../data/pedidos.js";
+import { addProxIdPedido, pedidos, proxIdPedido } from "../data/pedidos.js";
 import { produtos } from "../data/produtos.js";
 import { usuarios } from "../data/usuarios.js";
 import { criarResposta } from "../utils/criarResposta.js";
 import { validarNumeroPositivo, validarObjeto } from "../utils/validacoes.js";
+import { atualizarProduto } from "./produtoService.js";
 
 export const listarPedidos = () => {
   if (pedidos.length <= 0) {
@@ -48,6 +49,15 @@ export const cadastrarPedido = (dados) => {
   // o pedido sempre começa pendente
   const { usuarioId, produtosPedido } = dados;
 
+  if (!("usuarioId" in dados) || !("produtosPedido" in dados)) {
+    return criarResposta(400, {
+      msg: "Dados incorretos",
+      dadosCorretos: {
+        produtosPedido: { produtoId: "x", quantidade: "x" },
+      },
+    });
+  }
+
   if (!validarNumeroPositivo(usuarioId)) {
     return criarResposta(400, "O ID precisa ser um número maior que zero.");
   }
@@ -68,22 +78,36 @@ export const cadastrarPedido = (dados) => {
 
   //validar se no array, tem os dados corretos
   if (produtosPedido.length <= 0) {
-    return criarResposta(400, "O array de produtos está vazio");
+    return criarResposta(
+      400,
+      "os produtos pedidos devem conter pelo menos 1 produto",
+    );
   }
 
   const validarProdutos = produtosPedido.reduce(
-    (acc, produto) => {
-      //
-      console.log(typeof produto !== "object");
+    (acc, produto, index, arrayOriginal) => {
       if (typeof produto !== "object") {
-        console.log("caiu aaa? ");
-        return criarResposta(400, "erro");
-        return (acc.arrayInvalido = true);
+        acc.arrayInvalido = true;
+        arrayOriginal.splice(index + 1);
+        return acc;
+      }
+
+      // validar se enviaram os dados corretos
+
+      const { produtoId, quantidade } = produto;
+
+      if (!("produtoId" in produto) || !("quantidade" in produto)) {
+        console.log("nao veio o produtoID");
+        acc.dadosValidos = false;
+        arrayOriginal.splice(index + 1);
+        return acc;
       }
 
       // validar se o id e um numero positivo
       if (!validarNumeroPositivo(produto.produtoId)) {
-        return (acc.produtosValidos = false);
+        acc.produtosValidos = false;
+        arrayOriginal.splice(index + 1);
+        return acc;
       }
 
       // validar se os produtos existem
@@ -93,37 +117,58 @@ export const cadastrarPedido = (dados) => {
 
       if (!produtoExiste) {
         acc.produtoExiste = false;
+        arrayOriginal.splice(index + 1);
+        return acc;
+      }
+
+      if (produtoExiste.ativo !== true) {
+        acc.produtoAtivo = false;
+        arrayOriginal.splice(index + 1);
+        return acc;
       }
 
       // validar se a quantidade e valida
       if (!validarNumeroPositivo(produto.quantidade)) {
         acc.quantidadeValida = false;
+        arrayOriginal.splice(index + 1);
+        return acc;
       }
 
       // validar se a quantidade do produto e maior do que a quantidade pedida
       if (produtoExiste.quantidadeEstoque < produto.quantidade) {
         acc.quantidadeEstoqueValida = false;
+        arrayOriginal.splice(index + 1);
+        return acc;
       }
       produto.preco = produtoExiste.preco * produto.quantidade;
       //
       acc.valorTotal += produto.preco;
 
-      console.log("passou");
       return acc;
     },
     {
       arrayInvalido: false,
+      dadosValidos: true,
       produtosValidos: true,
       produtoExiste: true,
+      produtoAtivo: true,
       quantidadeValida: true,
       quantidadeEstoqueValida: true,
       valorTotal: 0,
     },
   );
-  console.log(validarProdutos.arrayInvalido);
+
+  if (!validarProdutos.dadosValidos) {
+    return criarResposta(400, {
+      msg: "Dados incorretos",
+      dadosCorretos: {
+        produtosPedido: { produtoId: "x", quantidade: "x" },
+      },
+    });
+  }
 
   if (validarProdutos.arrayInvalido) {
-    return criarResposta(400, "O array de produtos deve contem apenas objetos");
+    return criarResposta(400, "O array de produtos deve conter apenas objetos");
   }
 
   if (!validarProdutos.produtosValidos) {
@@ -132,6 +177,10 @@ export const cadastrarPedido = (dados) => {
 
   if (!validarProdutos.produtoExiste) {
     return criarResposta(404, "O produto não existe");
+  }
+
+  if (!validarProdutos.produtoAtivo) {
+    return criarResposta(400, "O produto precisa estar ativo");
   }
 
   if (!validarProdutos.quantidadeValida) {
@@ -160,7 +209,7 @@ export const cadastrarPedido = (dados) => {
   }
 
   const dadosPedido = {
-    id: undefined,
+    id: proxIdPedido,
     usuarioId,
     produtosPedido,
     data: new Date(),
@@ -168,5 +217,16 @@ export const cadastrarPedido = (dados) => {
     valorTotal: validarProdutos.valorTotal,
   };
 
-  console.log(dadosPedido);
+  addProxIdPedido();
+  pedidos.push(dadosPedido);
+
+  // atualizar a quantidade do produto
+  dadosPedido.produtosPedido.map((element) => {
+    const produto = produtos.find(
+      (produto) => produto.id === element.produtoId,
+    );
+    produto.quantidadeEstoque -= element.quantidade;
+  });
+
+  return criarResposta(200, "Pedido cadastrado !", { dadosPedido });
 };
