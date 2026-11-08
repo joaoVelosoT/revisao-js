@@ -37,29 +37,24 @@ export const cadastrarPedido = (dados) => {
   if (!validarObjeto(dados)) {
     return criarResposta(
       400,
-      "Os dados precisam ser enviados para o cadastro do pedido.",
+      "O corpo da requisição precisa ser um objeto JSON válido",
     );
   }
 
-  // validar o id do usuario -> procurar o usuario e ver se existe e se esta ativo
-  // validar se o pedido tem pelo menos um produto
-  // validar se o id do produto -> procurar o pedido e ver se existe e se esta ativo
-  // validar se a quantidade do produto e maior que 0, e validar se a quantidade não ultrapasse o estoque do produto
-  // validar se os produtos não se repetem
-  // o pedido sempre começa pendente
   const { usuarioId, produtosPedido } = dados;
 
   if (!("usuarioId" in dados) || !("produtosPedido" in dados)) {
-    return criarResposta(400, {
-      msg: "Dados incorretos",
-      dadosCorretos: {
-        produtosPedido: { produtoId: "x", quantidade: "x" },
-      },
-    });
+    return criarResposta(
+      400,
+      "O corpo da requisição precisa conter os campos usuarioId e produtosPedido",
+    );
   }
 
   if (!validarNumeroPositivo(usuarioId)) {
-    return criarResposta(400, "O ID precisa ser um número maior que zero.");
+    return criarResposta(
+      400,
+      "O usuarioId precisa ser um número maior que zero",
+    );
   }
 
   // buscar o usuario e validar se está ativo
@@ -68,19 +63,22 @@ export const cadastrarPedido = (dados) => {
     return criarResposta(404, "Usuario não encontrado");
   }
   if (!usuario.ativo) {
-    return criarResposta(400, "O usuario não está ativo");
+    return criarResposta(
+      400,
+      "O usuario precisa estar ativo para realizar pedidos",
+    );
   }
 
   // validar se enviaram um array
   if (!Array.isArray(produtosPedido)) {
-    return criarResposta(400, "Os produtos tem que ta em um array de objetos");
+    return criarResposta(400, "O campo produtosPedido precisa ser um array");
   }
 
   //validar se no array, tem os dados corretos
   if (produtosPedido.length <= 0) {
     return criarResposta(
       400,
-      "os produtos pedidos devem conter pelo menos 1 produto",
+      "O array produtosPedido precisa conter pelo menos um produto",
     );
   }
 
@@ -97,14 +95,13 @@ export const cadastrarPedido = (dados) => {
       const { produtoId, quantidade } = produto;
 
       if (!("produtoId" in produto) || !("quantidade" in produto)) {
-        console.log("nao veio o produtoID");
         acc.dadosValidos = false;
         arrayOriginal.splice(index + 1);
         return acc;
       }
 
       // validar se o id e um numero positivo
-      if (!validarNumeroPositivo(produto.produtoId)) {
+      if (!validarNumeroPositivo(produtoId)) {
         acc.produtosValidos = false;
         arrayOriginal.splice(index + 1);
         return acc;
@@ -112,7 +109,7 @@ export const cadastrarPedido = (dados) => {
 
       // validar se os produtos existem
       const produtoExiste = produtos.find(
-        (element) => element.id === produto.produtoId,
+        (element) => element.id === produtoId,
       );
 
       if (!produtoExiste) {
@@ -128,19 +125,19 @@ export const cadastrarPedido = (dados) => {
       }
 
       // validar se a quantidade e valida
-      if (!validarNumeroPositivo(produto.quantidade)) {
+      if (!validarNumeroPositivo(quantidade)) {
         acc.quantidadeValida = false;
         arrayOriginal.splice(index + 1);
         return acc;
       }
 
       // validar se a quantidade do produto e maior do que a quantidade pedida
-      if (produtoExiste.quantidadeEstoque < produto.quantidade) {
+      if (produtoExiste.quantidadeEstoque < quantidade) {
         acc.quantidadeEstoqueValida = false;
         arrayOriginal.splice(index + 1);
         return acc;
       }
-      produto.preco = produtoExiste.preco * produto.quantidade;
+      produto.preco = produtoExiste.preco * quantidade;
       //
       acc.valorTotal += produto.preco;
 
@@ -160,31 +157,44 @@ export const cadastrarPedido = (dados) => {
 
   if (!validarProdutos.dadosValidos) {
     return criarResposta(400, {
-      msg: "Dados incorretos",
+      msg: "O corpo da requisição precisa conter os campos produtoId e quantidade",
       dadosCorretos: {
-        produtosPedido: { produtoId: "x", quantidade: "x" },
+        produtoId: "Número maior que zero",
+        quantidade: "Número maior que zero",
       },
     });
   }
 
   if (validarProdutos.arrayInvalido) {
-    return criarResposta(400, "O array de produtos deve conter apenas objetos");
+    return criarResposta(
+      400,
+      "O array produtosPedido precisa conter apenas objetos JSON válidos",
+    );
   }
 
   if (!validarProdutos.produtosValidos) {
-    return criarResposta(400, "Id do produto inválido ou inexistente");
+    return criarResposta(
+      400,
+      "O produtoId precisa ser um número maior que zero",
+    );
   }
 
   if (!validarProdutos.produtoExiste) {
-    return criarResposta(404, "O produto não existe");
+    return criarResposta(404, "Produto não encontrado");
   }
 
   if (!validarProdutos.produtoAtivo) {
-    return criarResposta(400, "O produto precisa estar ativo");
+    return criarResposta(
+      400,
+      "O produto precisa estar ativo para ser adicionado ao pedido",
+    );
   }
 
   if (!validarProdutos.quantidadeValida) {
-    return criarResposta(400, "A quantidade do produto precisa ser positiva");
+    return criarResposta(
+      400,
+      "A quantidade precisa ser um número maior que zero",
+    );
   }
 
   // validar se já tem esse produto na lista
@@ -201,11 +211,17 @@ export const cadastrarPedido = (dados) => {
   });
 
   if (existeDuplicado) {
-    return criarResposta(400, "Não e permitido produto duplicado");
+    return criarResposta(
+      400,
+      "O array produtosPedido não pode conter produtos duplicados",
+    );
   }
 
   if (!validarProdutos.quantidadeEstoqueValida) {
-    return criarResposta(400, "Quantidade pedida e maior que o estoque");
+    return criarResposta(
+      400,
+      "A quantidade do produto no estoque é menor do que a quantidade pedida",
+    );
   }
 
   const dadosPedido = {

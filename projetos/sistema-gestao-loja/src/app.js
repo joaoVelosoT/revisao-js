@@ -58,12 +58,9 @@ console.log(
 console.log(
   cadastrarPedido({
     usuarioId: 1,
-    produtosPedido: [
-      { produtoId: 1, quantidade: 1 },
-      { produtoId: 2, quantidade: 1 },
-    ],
+    produtosPedido: "",
   }),
 );
 
-console.log(listarProdutos());
+// console.log(listarProdutos());
 // console.log(listarPedidos());
