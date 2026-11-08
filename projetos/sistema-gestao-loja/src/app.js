@@ -38,7 +38,7 @@ cadastrarProduto({
 
 cadastrarProduto({
   nome: "banana",
-  preco: 11011.5,
+  preco: 10,
   categoria: "alimentos",
   quantidadeEstoque: 132,
 });
@@ -66,8 +66,5 @@ console.log(gerarRelatorioProdutos());
 (cadastrarUsuario({ nome: "João Vitor", email: "joao@email.com", idade: 20 }),
   // atualizarUsuario(1,{ativo : false})
   console.log(
-    cadastrarPedido({
-      usuarioId: 1,
-      produtosPedido: [{ produtoId: 1, quantidade: 1 }, ,],
-    }),
+    cadastrarPedido({usuarioId :1, produtosPedido : [""]}),
   ));

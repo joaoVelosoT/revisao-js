@@ -67,12 +67,23 @@ export const cadastrarPedido = (dados) => {
   }
 
   //validar se no array, tem os dados corretos
+  if (produtosPedido.length <= 0) {
+    return criarResposta(400, "O array de produtos está vazio");
+  }
 
   const validarProdutos = produtosPedido.reduce(
     (acc, produto) => {
+      //
+      console.log(typeof produto !== "object");
+      if (typeof produto !== "object") {
+        console.log("caiu aaa? ");
+        return criarResposta(400, "erro");
+        return (acc.arrayInvalido = true);
+      }
+
       // validar se o id e um numero positivo
       if (!validarNumeroPositivo(produto.produtoId)) {
-        acc.produtosValidos = false;
+        return (acc.produtosValidos = false);
       }
 
       // validar se os produtos existem
@@ -88,13 +99,35 @@ export const cadastrarPedido = (dados) => {
       if (!validarNumeroPositivo(produto.quantidade)) {
         acc.quantidadeValida = false;
       }
+
+      // validar se a quantidade do produto e maior do que a quantidade pedida
+      if (produtoExiste.quantidadeEstoque < produto.quantidade) {
+        acc.quantidadeEstoqueValida = false;
+      }
+      produto.preco = produtoExiste.preco * produto.quantidade;
+      //
+      acc.valorTotal += produto.preco;
+
+      console.log("passou");
       return acc;
     },
-    { produtosValidos: true, produtoExiste: true, quantidadeValida: true },
+    {
+      arrayInvalido: false,
+      produtosValidos: true,
+      produtoExiste: true,
+      quantidadeValida: true,
+      quantidadeEstoqueValida: true,
+      valorTotal: 0,
+    },
   );
+  console.log(validarProdutos.arrayInvalido);
+
+  if (validarProdutos.arrayInvalido) {
+    return criarResposta(400, "O array de produtos deve contem apenas objetos");
+  }
 
   if (!validarProdutos.produtosValidos) {
-    return criarResposta(400, "O id de algum dos produtos são invalidos");
+    return criarResposta(400, "Id do produto inválido ou inexistente");
   }
 
   if (!validarProdutos.produtoExiste) {
@@ -122,10 +155,18 @@ export const cadastrarPedido = (dados) => {
     return criarResposta(400, "Não e permitido produto duplicado");
   }
 
-  //   if (produtos.length !== validarProdutos.length) {
-  //     return criarResposta(400, "Os produtos enviados estão invalidos");
-  //   }
+  if (!validarProdutos.quantidadeEstoqueValida) {
+    return criarResposta(400, "Quantidade pedida e maior que o estoque");
+  }
 
-  // console.log(validarProdutos);
-  //   console.log(usuario);
+  const dadosPedido = {
+    id: undefined,
+    usuarioId,
+    produtosPedido,
+    data: new Date(),
+    status: "pendente",
+    valorTotal: validarProdutos.valorTotal,
+  };
+
+  console.log(dadosPedido);
 };
