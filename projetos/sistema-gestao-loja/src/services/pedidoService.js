@@ -2,7 +2,11 @@ import { addProxIdPedido, pedidos, proxIdPedido } from "../data/pedidos.js";
 import { produtos } from "../data/produtos.js";
 import { usuarios } from "../data/usuarios.js";
 import { criarResposta } from "../utils/criarResposta.js";
-import { validarNumeroPositivo, validarObjeto } from "../utils/validacoes.js";
+import {
+  validarNumeroPositivo,
+  validarObjeto,
+  validarString,
+} from "../utils/validacoes.js";
 import { atualizarProduto } from "./produtoService.js";
 
 export const listarPedidos = () => {
@@ -244,5 +248,91 @@ export const cadastrarPedido = (dados) => {
     produto.quantidadeEstoque -= element.quantidade;
   });
 
-  return criarResposta(200, "Pedido cadastrado !", { dadosPedido });
+  return criarResposta(200, "Pedido cadastrado!", structuredClone(dadosPedido));
+};
+
+export const atualizarStatusPedido = (id, status) => {
+  // validar se o id e valido
+
+  if (!validarNumeroPositivo(id)) {
+    return criarResposta(400, "O ID precisa ser um número maior que zero.");
+  }
+
+  const pedido = pedidos.find((element) => element.id === id);
+
+  if (!pedido) {
+    return criarResposta(404, "Pedido não encontrado");
+  }
+
+  // validar se o status e valido
+  if (!validarString(status)) {
+    return criarResposta(400, "O status precisa ser uma string válida");
+  }
+
+  const statusValidos = ["pendente", "concluído", "cancelado"];
+
+  if (!statusValidos.includes(status)) {
+    return criarResposta(
+      400,
+      `O status precisa ser um dos seguintes valores: ${statusValidos.join(
+        ", ",
+      )}`,
+    );
+  }
+
+  if (pedido.status === status) {
+    return criarResposta(400, `O status do pedido já é ${status}`);
+  }
+
+  // testar essa validação depois
+  if (pedido.status === "cancelado" || pedido.status === "concluído") {
+    return criarResposta(
+      400,
+      "Não é possível atualizar o status de um pedido cancelado ou concluído",
+    );
+  }
+
+  pedido.status = status;
+
+  return criarResposta(
+    200,
+    "Status do pedido atualizado",
+    structuredClone(pedido),
+  );
+};
+
+export const cancelarPedido = (id) => {
+  if (!validarNumeroPositivo(id)) {
+    return criarResposta(400, "O ID precisa ser um número maior que zero.");
+  }
+
+  const pedido = pedidos.find((element) => element.id === id);
+
+  if (!pedido) {
+    return criarResposta(404, "Pedido não encontrado");
+  }
+
+  if (pedido.status === "cancelado") {
+    return criarResposta(400, "O pedido já está cancelado");
+  }
+
+  if (pedido.status === "concluído") {
+    return criarResposta(400, "Não é possível cancelar um pedido concluído");
+  }
+
+  pedido.status = "cancelado";
+
+  // atualizar a quantidade do produto
+  pedido.produtosPedido.map((element) => {
+    const produto = produtos.find(
+      (produto) => produto.id === element.produtoId,
+    );
+    produto.quantidadeEstoque += element.quantidade;
+  });
+
+  return criarResposta(
+    200,
+    "Pedido cancelado com sucesso",
+    structuredClone(pedido),
+  );
 };

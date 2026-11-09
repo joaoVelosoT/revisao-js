@@ -1,5 +1,7 @@
 import {
+  atualizarStatusPedido,
   cadastrarPedido,
+  cancelarPedido,
   listarPedidoPorId,
   listarPedidos,
 } from "./services/pedidoService.js";
@@ -55,12 +57,10 @@ console.log(
   }),
 );
 
-console.log(
-  cadastrarPedido({
-    usuarioId: 1,
-    produtosPedido: "",
-  }),
-);
+console.log(listarProdutos());
+
+console.log(cancelarPedido(1));
+// console.log(atualizarStatusPedido(1, "pendente"));
 
 // console.log(listarProdutos());
 // console.log(listarPedidos());
