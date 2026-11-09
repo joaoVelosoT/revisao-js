@@ -336,3 +336,95 @@ export const cancelarPedido = (id) => {
     structuredClone(pedido),
   );
 };
+
+export const listarPedidosPorUsuario = (usuarioId) => {
+  if (!validarNumeroPositivo(usuarioId)) {
+    return criarResposta(
+      400,
+      "O usuarioId precisa ser um número maior que zero.",
+    );
+  }
+
+  const usuario = usuarios.find((element) => element.id === usuarioId);
+
+  if (!usuario) {
+    return criarResposta(404, "Usuario não encontrado");
+  }
+
+  const pedidosUsuario = pedidos.filter(
+    (pedido) => pedido.usuarioId === usuarioId,
+  );
+
+  if (pedidosUsuario.length <= 0) {
+    return criarResposta(404, "Nenhum pedido encontrado para esse usuário");
+  }
+  return criarResposta(
+    200,
+    "Pedidos encontrados",
+    structuredClone(pedidosUsuario),
+  );
+};
+
+export const calcularTotalPedido = (id) => {
+  if (!validarNumeroPositivo(id)) {
+    return criarResposta(400, "O ID precisa ser um número maior que zero.");
+  }
+
+  const pedido = pedidos.find((element) => element.id === id);
+  if (!pedido) {
+    return criarResposta(404, "Pedido não encontrado");
+  }
+
+  const totalPedido = pedido.produtosPedido.reduce((acc, produto) => {
+    acc += produto.preco * produto.quantidade;
+
+    return acc;
+  }, 0);
+
+  return criarResposta(
+    200,
+    "Total do pedido calculado",
+    structuredClone({ totalPedido }),
+  );
+};
+
+export const gerarRelatorioPedidos = () => {
+  const relatorio = pedidos.reduce(
+    (acc, pedido) => {
+      acc.totalPedido += 1;
+      if (pedido.status === "pendente") {
+        acc.pedidosPendentes += 1;
+      }
+
+      if (pedido.status === "concluído") {
+        acc.pedidosConcluidos += 1;
+      }
+
+      if (pedido.status === "cancelado") {
+        acc.pedidosCancelados += 1;
+      }
+
+      if (pedido.status !== "cancelado") {
+        acc.totalValorPedidos += pedido.valorTotal;
+      }
+
+      // console.log(acc.totalPedido - acc.pedidosCancelados);
+      return acc;
+    },
+    {
+      totalPedido: 0,
+      pedidosPendentes: 0,
+      pedidosConcluidos: 0,
+      pedidosCancelados: 0,
+      valorTotalPedidos: 0,
+      totalValorPedidos: 0,
+      ticketMedio: 0,
+    },
+  );
+
+  relatorio.ticketMedio =
+    relatorio.totalValorPedidos /
+    (relatorio.totalPedido - relatorio.pedidosCancelados);    
+
+  return criarResposta(200, "Relatorio gerado", structuredClone(relatorio));
+};
