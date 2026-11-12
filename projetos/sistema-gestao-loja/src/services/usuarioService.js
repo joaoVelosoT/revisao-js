@@ -8,6 +8,9 @@ import {
 } from "../utils/validacoes.js";
 
 export const listarUsuarios = () => {
+  if (usuarios.length === 0) {
+    return criarResposta(404, "Nenhum usuário cadastrado.");
+  }
   return criarResposta(
     200,
     "Todos os usuários encontrados.",
@@ -64,7 +67,10 @@ export const cadastrarUsuario = (dados) => {
   }
 
   if (!validarNumeroPositivo(idade)) {
-    return criarResposta(400, "A idade precisa ser um número maior que zero.");
+    return criarResposta(
+      400,
+      "A idade precisa ser um número inteiro maior que zero.",
+    );
   }
 
   const usuario = {
@@ -205,6 +211,9 @@ export const deletarUsuario = (id) => {
 export const filtrarUsuariosAtivos = () => {
   const usuariosAtivos = usuarios.filter((usuario) => usuario.ativo);
 
+  if (usuariosAtivos.length === 0) {
+    return criarResposta(404, "Nenhum usuário ativo encontrado.");
+  }
   return criarResposta(
     200,
     "Usuários ativos encontrados.",
