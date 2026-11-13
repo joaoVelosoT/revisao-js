@@ -73,6 +73,13 @@ export const cadastrarProduto = (dados) => {
     );
   }
 
+  if (Number.isNaN(preco) || !Number.isFinite(preco)) {
+    return criarResposta(
+      400,
+      "O preço é um número não pode ser NaN ou Infinity",
+    );
+  }
+
   if (!Number.isInteger(quantidadeEstoque) || quantidadeEstoque < 0) {
     return criarResposta(
       400,
@@ -153,7 +160,7 @@ export const atualizarProduto = (id, dados) => {
         "Nome inválido. O nome precisa ser uma string e não pode conter apenas espaços em branco.",
       );
     }
-    dadosNovos.nome = nome;
+    dadosNovos.nome = nome.trim().toLowerCase();
   }
 
   if ("categoria" in dados) {
@@ -170,7 +177,7 @@ export const atualizarProduto = (id, dados) => {
       });
     }
 
-    dadosNovos.categoria = categoria;
+    dadosNovos.categoria = categoria.trim().toLowerCase();
   }
 
   if ("preco" in dados) {
@@ -181,6 +188,13 @@ export const atualizarProduto = (id, dados) => {
         "O preço é um número não pode ser menor ou igual a 0",
       );
     }
+    if (Number.isNaN(preco) || !Number.isFinite(preco)) {
+      return criarResposta(
+        400,
+        "O preço é um número não pode ser NaN ou Infinity",
+      );
+    }
+
     dadosNovos.preco = preco;
   }
 
@@ -211,7 +225,7 @@ export const atualizarProduto = (id, dados) => {
         produto.categoria === categoria.trim().toLowerCase(),
     );
 
-    if (existeProduto) {
+    if (existeProduto && existeProduto.id !== id) {
       return criarResposta(
         400,
         "Já existe produto com esse nome nessa categoria",
@@ -227,7 +241,7 @@ export const atualizarProduto = (id, dados) => {
         element.categoria === produto.categoria,
     );
 
-    if (existeProduto) {
+    if (existeProduto && existeProduto.id !== id) {
       return criarResposta(
         400,
         "Já existe produto com esse nome nessa categoria",
@@ -267,20 +281,29 @@ export const deletarProduto = (id) => {
 
   produtos.splice(produtos.indexOf(produto), 1);
   return criarResposta(
-    400,
+    200,
     "Produto deletado com sucesso",
     structuredClone(produto),
   );
 };
 
 export const filtrarProdutoEmEstoque = () => {
-  return structuredClone(
-    produtos.filter((produto) => produto.quantidadeEstoque > 0),
+  const produtosEmEstoque = produtos.filter(
+    (produto) => produto.quantidadeEstoque > 0,
+  );
+  if (produtosEmEstoque.length === 0) {
+    return criarResposta(404, "Nenhum produto em estoque encontrado.");
+  }
+
+  return criarResposta(
+    200,
+    "Produtos em estoque encontrados.",
+    structuredClone(produtosEmEstoque),
   );
 };
 
 export const gerarRelatorioProdutos = () => {
-  if (!produtos) {
+  if (produtos.length === 0) {
     return criarResposta(404, "Nenhum produto foi cadastrado ainda");
   }
 
@@ -288,7 +311,7 @@ export const gerarRelatorioProdutos = () => {
   let produtoMaisCaro = 0;
   const relatorio = produtos.reduce(
     (acc, element) => {
-      acc.totalProduto += 1;
+      acc.totalProdutos += 1;
 
       if (element.ativo) {
         acc.produtosAtivos += 1;
@@ -311,7 +334,7 @@ export const gerarRelatorioProdutos = () => {
       return acc;
     },
     {
-      totalProduto: 0,
+      totalProdutos: 0,
       produtosAtivos: 0,
       produtosInativos: 0,
       valorTotalEstoque: 0,
