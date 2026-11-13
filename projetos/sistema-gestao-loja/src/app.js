@@ -13,7 +13,7 @@ import {
   buscarProdutoPorId,
   cadastrarProduto,
   deletarProduto,
-  filtrarProdutoEmEstoque,
+  filtrarProdutosEmEstoque,
   gerarRelatorioProdutos,
   listarProdutos,
 } from "./services/produtoService.js";
@@ -28,59 +28,37 @@ import {
 } from "./services/usuarioService.js";
 
 // console.log(listarProdutos());
-console.log(
-  cadastrarProduto({
-    nome: "      celular",
-    categoria: "eletrônicos",
-    preco: 1200,
-    quantidadeEstoque: 1231,
-  }),
-);
 
-console.log(
-  cadastrarProduto({
-    nome: "      alcool",
-    categoria: "limpeza",
-    preco: 10,
-    quantidadeEstoque: 1231,
-  }),
-);
+console.log(cadastrarUsuario({ nome: "joao", email: "usuariogmail.com", idade: 21 }));
 
-// console.log(deletarProduto(12));
-
-cadastrarUsuario({
-  nome: "teste",
-  email: "teste@email.com",
-  idade: 1,
-});
-
-// console.log(atualizarProduto(1, { ativo: false }));
+// console.log(atualizarUsuario(1, {email : " a"}))
 
 // console.log(
-//   cadastrarPedido({
-//     usuarioId: 1,
-//     produtosPedido: [
-//       { produtoId: 1, quantidade: 3 },
-//       { produtoId: 2, quantidade: 4 },
-      
-//     ],
+//   cadastrarProduto({
+//     nome: "      tv",
+//     categoria: "eletrônicos",
+//     preco: 1110,
+//     quantidadeEstoque: 1231,
 //   }),
 // );
 
-console.log(
-  cadastrarPedido({
-    usuarioId: 1,
-    produtosPedido: [
-      { produtoId: 1, quantidade: 3 },
-      // { produtoId: 2, quantidade: 4 },
-      
-    ],
-  }),
-);
+// console.log(
+//   cadastrarProduto({
+//     nome: "      gel",
+//     categoria: "limpezaa",
+//     preco: 10,
+//     quantidadeEstoque: 1231,
+//   }),
+// );
 
-// console.log(cancelarPedido(2));
+// // console.log(cadastrarPedido({usuarioId : 1, produtosPedido : [{produtoId : 1, quantidade : 2},{produtoId : 2, quantidade : 2}]}))
 
-// console.dir(listarPedidos(), { depth: null });
+// cancelarPedido(1)
 
-console.log(gerarRelatorioPedidos());
-// console.log(listarProdutos());
+// // console.log(deletarProduto(2))
+
+// // console.log(gerarRelatorioPedidos())
+// // console.log(atualizarStatusPedido(1, "cancelado"))
+// // console.log(calcularTotalPedido(1))
+
+// // console.log(deletarUsuario(1))

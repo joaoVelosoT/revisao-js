@@ -85,6 +85,7 @@ export const cadastrarPedido = (dados) => {
     );
   }
   let valorTotal = 0;
+  const dadosProdutosPedidos = [];
   for (const item of dados.produtosPedido) {
     if (typeof item !== "object" || item === null) {
       return criarResposta(
@@ -133,55 +134,63 @@ export const cadastrarPedido = (dados) => {
       );
     }
 
-    item.preco = produto.preco * quantidade;
-
-    valorTotal += item.preco;
-
-    // validar se já tem esse produto na lista
-
-    const ids = new Set();
-
-    const existeDuplicado = produtosPedido.some((produto) => {
-      if (ids.has(produto.produtoId)) {
-        return true;
-      }
-
-      ids.add(produto.produtoId);
-      return false;
+    dadosProdutosPedidos.push({
+      produtoId,
+      quantidade,
+      preco: produto.preco,
     });
 
-    if (existeDuplicado) {
-      return criarResposta(
-        400,
-        "O array produtosPedido não pode conter produtos duplicados",
-      );
+    valorTotal += produto.preco * quantidade;
+  }
+
+  // validar se já tem esse produto na lista
+
+  const ids = new Set();
+
+  const existeDuplicado = dadosProdutosPedidos.some((produto) => {
+    if (ids.has(produto.produtoId)) {
+      return true;
     }
 
-    const dadosPedido = {
-      id: proxIdPedido,
-      usuarioId,
-      produtosPedido,
-      data: new Date(),
-      status: "pendente",
-      valorTotal: valorTotal,
-    };
+    ids.add(produto.produtoId);
+    return false;
+  });
 
-    addProxIdPedido();
-    pedidos.push(dadosPedido);
-
-    dadosPedido.produtosPedido.map((element) => {
-      const produto = produtos.find(
-        (produto) => produto.id === element.produtoId,
-      );
-      produto.quantidadeEstoque -= element.quantidade;
-    });
-
+  if (existeDuplicado) {
     return criarResposta(
-      200,
-      "Pedido cadastrado!",
-      structuredClone(dadosPedido),
+      400,
+      "O array produtosPedido não pode conter produtos duplicados",
     );
   }
+
+  // dadosPedido = {
+  //   id: proxIdPedido,
+  //   usuarioId,
+  //   produtosPedido,
+  //   data: new Date(),
+  //   status: "pendente",
+  //   valorTotal: valorTotal,
+  // }
+  const dadosPedido = {
+    id: proxIdPedido,
+    usuarioId,
+    produtosPedido: dadosProdutosPedidos,
+    data: new Date(),
+    status: "pendente",
+    valorTotal: valorTotal,
+  };
+
+  addProxIdPedido();
+  pedidos.push(dadosPedido);
+
+  dadosPedido.produtosPedido.forEach((element) => {
+    const produto = produtos.find(
+      (produto) => produto.id === element.produtoId,
+    );
+    produto.quantidadeEstoque -= element.quantidade;
+  });
+
+  return criarResposta(201, "Pedido cadastrado!", structuredClone(dadosPedido));
 };
 
 export const atualizarStatusPedido = (id, status) => {
@@ -202,7 +211,7 @@ export const atualizarStatusPedido = (id, status) => {
     return criarResposta(400, "O status precisa ser uma string válida");
   }
 
-  const statusValidos = ["pendente", "concluído", "cancelado"];
+  const statusValidos = ["pendente", "concluído"];
 
   if (!statusValidos.includes(status)) {
     return criarResposta(
@@ -256,7 +265,7 @@ export const cancelarPedido = (id) => {
   pedido.status = "cancelado";
 
   // atualizar a quantidade do produto
-  pedido.produtosPedido.map((element) => {
+  pedido.produtosPedido.forEach((element) => {
     const produto = produtos.find(
       (produto) => produto.id === element.produtoId,
     );
@@ -309,7 +318,7 @@ export const calcularTotalPedido = (id) => {
   }
 
   const totalPedido = pedido.produtosPedido.reduce((acc, produto) => {
-    acc += produto.preco;
+    acc += produto.preco * produto.quantidade;
 
     return acc;
   }, 0);
@@ -344,7 +353,6 @@ export const gerarRelatorioPedidos = () => {
         acc.valorTotalPedidos += pedido.valorTotal;
       }
 
-      // console.log(acc.totalPedido - acc.pedidosCancelados);
       return acc;
     },
     {
@@ -357,9 +365,11 @@ export const gerarRelatorioPedidos = () => {
     },
   );
 
-  relatorio.ticketMedio =
-    relatorio.valorTotalPedidos /
-    (relatorio.totalPedidos - relatorio.pedidosCancelados);
+  if (relatorio.totalPedidos !== relatorio.pedidosCancelados) {
+    relatorio.ticketMedio =
+      relatorio.valorTotalPedidos /
+      (relatorio.totalPedidos - relatorio.pedidosCancelados);
+  }
 
   return criarResposta(200, "Relatorio gerado", structuredClone(relatorio));
 };

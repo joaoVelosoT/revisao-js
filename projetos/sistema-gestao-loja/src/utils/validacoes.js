@@ -15,15 +15,31 @@ export const validarNumeroPositivo = (numero) => {
 };
 
 export const validarEmail = (email) => {
+  const emailsValidos = ["gmail.com", "hotmail.com", "outlook.com"];
   if (!validarString(email)) {
     return false;
   }
 
-  // validação simples de email
-  if (!email.includes("@email.com")) {
+  email = email.split("@");
+
+  if (email.length !== 2) {
     return false;
   }
 
+  // validação simples de email
+  if (!emailsValidos.includes(email[1])) {
+    return false;
+  }
+
+  // validar se antes do arroba tem algum espaço vazio
+  if (email[0].indexOf(" ") !== -1) {
+    return false;
+  }
+
+  // validar se antes do arroba tem o min de caracters necessarios
+  if (email[0].length < 6 || email[0].length > 30) {
+    return false;
+  }
   return true;
 };
 

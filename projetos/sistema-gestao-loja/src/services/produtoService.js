@@ -1,4 +1,5 @@
 import { categorias } from "../data/categorias.js";
+import { pedidos } from "../data/pedidos.js";
 import { addProxIdProduto, produtos, proxIdProduto } from "../data/produtos.js";
 import { criarResposta } from "../utils/criarResposta.js";
 import {
@@ -59,10 +60,10 @@ export const cadastrarProduto = (dados) => {
   }
 
   if (!categorias.includes(categoria.trim().toLowerCase())) {
-    return criarResposta(400, {
-      mensagem: "Categoria invalida",
-      categoriasValidas: structuredClone(categorias),
-    });
+    return criarResposta(
+      400,
+      `Categoria invalida, categorias validas : ${categorias}`,
+    );
   }
 
   // validar preco
@@ -83,7 +84,7 @@ export const cadastrarProduto = (dados) => {
   if (!Number.isInteger(quantidadeEstoque) || quantidadeEstoque < 0) {
     return criarResposta(
       400,
-      "A quantidade do produto precisa ser positiva e maior que zero",
+      "A quantidade do produto precisa ser positiva ou igual a zero",
     );
   }
 
@@ -139,7 +140,7 @@ export const atualizarProduto = (id, dados) => {
   }
 
   const { nome, categoria, preco, quantidadeEstoque, ativo } = dados;
-  var dadosNovos = {};
+  const dadosNovos = {};
   if (
     !("nome" in dados) &&
     !("categoria" in dados) &&
@@ -165,16 +166,16 @@ export const atualizarProduto = (id, dados) => {
 
   if ("categoria" in dados) {
     if (typeof categoria !== "string") {
-      return criarResposta(400, {
-        mensagem: "Categoria invalida",
-        categoriasValidas: structuredClone(categorias),
-      });
+      return criarResposta(
+        400,
+        `Categoria invalida, categorias validas : ${categorias}`,
+      );
     }
     if (!categorias.includes(categoria.trim().toLowerCase())) {
-      return criarResposta(400, {
-        mensagem: "Categoria invalida",
-        categoriasValidas: structuredClone(categorias),
-      });
+      return criarResposta(
+        400,
+        `Categoria invalida, categorias validas : ${categorias}`,
+      );
     }
 
     dadosNovos.categoria = categoria.trim().toLowerCase();
@@ -256,7 +257,7 @@ export const atualizarProduto = (id, dados) => {
         element.nome === produto.nome &&
         element.categoria === dadosNovos.categoria,
     );
-    if (existeProduto) {
+    if (existeProduto && existeProduto.id !== id) {
       return criarResposta(
         400,
         "Na categoria enviada já tem um produto com o nome original ",
@@ -279,6 +280,18 @@ export const deletarProduto = (id) => {
     return criarResposta(404, "Produto não encontrado.");
   }
 
+  // validar se o produto está em algum pedido, se estiver não pode ser deletado
+  const existePedidoComOProduto = pedidos.filter((pedido) => {
+    return pedido.produtosPedido.some((item) => item.produtoId === id);
+  });
+
+  if (existePedidoComOProduto.length !== 0) {
+    return criarResposta(
+      400,
+      "Não é possível deletar um produto que já esteja relacionado a um pedido",
+    );
+  }
+
   produtos.splice(produtos.indexOf(produto), 1);
   return criarResposta(
     200,
@@ -287,7 +300,7 @@ export const deletarProduto = (id) => {
   );
 };
 
-export const filtrarProdutoEmEstoque = () => {
+export const filtrarProdutosEmEstoque = () => {
   const produtosEmEstoque = produtos.filter(
     (produto) => produto.quantidadeEstoque > 0,
   );

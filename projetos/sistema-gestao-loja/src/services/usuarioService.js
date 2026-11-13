@@ -1,3 +1,4 @@
+import { pedidos } from "../data/pedidos.js";
 import { addProxId, proxId, usuarios } from "../data/usuarios.js";
 import { criarResposta } from "../utils/criarResposta.js";
 import {
@@ -50,13 +51,19 @@ export const cadastrarUsuario = (dados) => {
   }
 
   // Validar se o e-mail é válido.
-  if (!validarEmail(email)) {
+  if ("email" in dados !== true) {
     return criarResposta(
       400,
-      "O e-mail precisa ser uma string e conter o formato @email.com.",
+      " E-mail inválido. Insira um texto entre 6 e 30 caracteres utilizando @gmail.com, @hotmail.com ou @outlook.com.",
     );
   }
 
+  if (!validarEmail(email.trim().toLocaleLowerCase())) {
+    return criarResposta(
+      400,
+      " E-mail inválido. Insira um texto entre 6 e 30 caracteres utilizando @gmail.com, @hotmail.com ou @outlook.com.",
+    );
+  }
   // Verificar se o e-mail já está cadastrado.
   const existeEmail = usuarios.find(
     (usuario) => usuario.email === email.trim().toLocaleLowerCase(),
@@ -140,10 +147,10 @@ export const atualizarUsuario = (id, dados) => {
 
   if ("email" in dados) {
     // Validar se o e-mail é válido.
-    if (!validarEmail(email)) {
+    if (!validarEmail(email.trim().toLocaleLowerCase())) {
       return criarResposta(
         400,
-        "O e-mail precisa ser uma string e conter o formato @email.com.",
+        " E-mail inválido. Insira um texto entre 6 e 30 caracteres utilizando @gmail.com, @hotmail.com ou @outlook.com.",
       );
     }
 
@@ -196,6 +203,15 @@ export const deletarUsuario = (id) => {
 
   if (!usuario) {
     return criarResposta(404, "Usuário não encontrado.");
+  }
+
+  // validar se o usuario não tem pedidos associados
+  const pedidosUsuario = pedidos.find((pedido) => pedido.usuarioId === id);
+  if (pedidosUsuario) {
+    return criarResposta(
+      400,
+      "Não é possivel deletar usuarios com pedidos associados",
+    );
   }
 
   // Excluir o usuário.
