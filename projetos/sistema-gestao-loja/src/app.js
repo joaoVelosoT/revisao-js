@@ -4,7 +4,7 @@ import {
   calcularTotalPedido,
   cancelarPedido,
   gerarRelatorioPedidos,
-  listarPedidoPorId,
+  buscarPedidoPorId,
   listarPedidos,
   listarPedidosPorUsuario,
 } from "./services/pedidoService.js";
@@ -28,48 +28,59 @@ import {
 } from "./services/usuarioService.js";
 
 // console.log(listarProdutos());
-// console.log(
-//   cadastrarProduto({
-//     nome: "      teste",
-//     categoria: "limpeza",
-//     preco: 1,
-//     quantidadeEstoque: 1,
+console.log(
+  cadastrarProduto({
+    nome: "      celular",
+    categoria: "eletrônicos",
+    preco: 1200,
+    quantidadeEstoque: 1231,
+  }),
+);
 
+console.log(
+  cadastrarProduto({
+    nome: "      alcool",
+    categoria: "limpeza",
+    preco: 10,
+    quantidadeEstoque: 1231,
+  }),
+);
+
+// console.log(deletarProduto(12));
+
+cadastrarUsuario({
+  nome: "teste",
+  email: "teste@email.com",
+  idade: 1,
+});
+
+// console.log(atualizarProduto(1, { ativo: false }));
+
+// console.log(
+//   cadastrarPedido({
+//     usuarioId: 1,
+//     produtosPedido: [
+//       { produtoId: 1, quantidade: 3 },
+//       { produtoId: 2, quantidade: 4 },
+      
+//     ],
 //   }),
 // );
 
 console.log(
-  cadastrarProduto({
-    nome: "      Ateste",
-    categoria: "eletrônicos",
-    preco: 1,
-    quantidadeEstoque: 1,
-  }),
-);
-
-cadastrarProduto({
-  nome: "p1",
-  categoria: "eletrônicos",
-  preco: 1,
-  quantidadeEstoque: 1,
-});
-// console.log(atualizarProduto(1, { nome: "Ateste", categoria: "eletrônicos", preco : 10 })));
-
-// console.log(deletarProduto(12));
-
-console.log(cadastrarUsuario({ nome: "João", email: "joao@email.com",idade : 1 }));
-console.log(
   cadastrarPedido({
     usuarioId: 1,
     produtosPedido: [
-      {
-        produtoId: 1,
-        quantidade: 2,
-      },
-      {
-        produtoId: -2,
-        quantidade: 2,
-      },
+      { produtoId: 1, quantidade: 3 },
+      // { produtoId: 2, quantidade: 4 },
+      
     ],
   }),
 );
+
+// console.log(cancelarPedido(2));
+
+// console.dir(listarPedidos(), { depth: null });
+
+console.log(gerarRelatorioPedidos());
+// console.log(listarProdutos());

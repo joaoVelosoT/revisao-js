@@ -7,7 +7,6 @@ import {
   validarObjeto,
   validarString,
 } from "../utils/validacoes.js";
-import { atualizarProduto } from "./produtoService.js";
 
 export const listarPedidos = () => {
   if (pedidos.length <= 0) {
@@ -21,7 +20,7 @@ export const listarPedidos = () => {
   );
 };
 
-export const listarPedidoPorId = (id) => {
+export const buscarPedidoPorId = (id) => {
   // validar se o id e valido
 
   if (!validarNumeroPositivo(id)) {
@@ -37,229 +36,154 @@ export const listarPedidoPorId = (id) => {
   return criarResposta(200, "Pedido encontrado", structuredClone(pedido));
 };
 
-// export const cadastrarPedido = (dados) => {
-//   if (!validarObjeto(dados)) {
-//     return criarResposta(
-//       400,
-//       "O corpo da requisição precisa ser um objeto JSON válido",
-//     );
-//   }
-
-//   const { usuarioId, produtosPedido } = dados;
-
-//   if (!("usuarioId" in dados) || !("produtosPedido" in dados)) {
-//     return criarResposta(
-//       400,
-//       "O corpo da requisição precisa conter os campos usuarioId e produtosPedido",
-//     );
-//   }
-
-//   if (!validarNumeroPositivo(usuarioId)) {
-//     return criarResposta(
-//       400,
-//       "O usuarioId precisa ser um número maior que zero",
-//     );
-//   }
-
-//   // buscar o usuario e validar se está ativo
-//   const usuario = usuarios.find((element) => element.id === usuarioId);
-//   if (!usuario) {
-//     return criarResposta(404, "Usuario não encontrado");
-//   }
-//   if (!usuario.ativo) {
-//     return criarResposta(
-//       400,
-//       "O usuario precisa estar ativo para realizar pedidos",
-//     );
-//   }
-
-//   // validar se enviaram um array
-//   if (!Array.isArray(produtosPedido)) {
-//     return criarResposta(400, "O campo produtosPedido precisa ser um array");
-//   }
-
-//   //validar se no array, tem os dados corretos
-//   if (produtosPedido.length <= 0) {
-//     return criarResposta(
-//       400,
-//       "O array produtosPedido precisa conter pelo menos um produto",
-//     );
-//   }
-
-//   // const validarProdutos = produtosPedido.reduce(
-//   //   (acc, produto, index, arrayOriginal) => {
-//   //     if (typeof produto !== "object") {
-//   //       acc.arrayInvalido = true;
-//   //       arrayOriginal.splice(index + 1);
-//   //       return acc;
-//   //     }
-
-//   //     // validar se enviaram os dados corretos
-
-//   //     const { produtoId, quantidade } = produto;
-
-//   //     if (!("produtoId" in produto) || !("quantidade" in produto)) {
-//   //       acc.dadosValidos = false;
-//   //       arrayOriginal.splice(index + 1);
-//   //       return acc;
-//   //     }
-
-//   //     // validar se o id e um numero positivo
-//   //     if (!validarNumeroPositivo(produtoId)) {
-//   //       acc.produtosValidos = false;
-//   //       arrayOriginal.splice(index + 1);
-//   //       return acc;
-//   //     }
-
-//   //     // validar se os produtos existem
-//   //     const produtoExiste = produtos.find(
-//   //       (element) => element.id === produtoId,
-//   //     );
-
-//   //     if (!produtoExiste) {
-//   //       acc.produtoExiste = false;
-//   //       arrayOriginal.splice(index + 1);
-//   //       return acc;
-//   //     }
-
-//   //     if (produtoExiste.ativo !== true) {
-//   //       acc.produtoAtivo = false;
-//   //       arrayOriginal.splice(index + 1);
-//   //       return acc;
-//   //     }
-
-//   //     // validar se a quantidade e valida
-//   //     if (!validarNumeroPositivo(quantidade)) {
-//   //       acc.quantidadeValida = false;
-//   //       arrayOriginal.splice(index + 1);
-//   //       return acc;
-//   //     }
-
-//   //     // validar se a quantidade do produto e maior do que a quantidade pedida
-//   //     if (produtoExiste.quantidadeEstoque < quantidade) {
-//   //       acc.quantidadeEstoqueValida = false;
-//   //       arrayOriginal.splice(index + 1);
-//   //       return acc;
-//   //     }
-//   //     produto.preco = produtoExiste.preco * quantidade;
-//   //     //
-//   //     acc.valorTotal += produto.preco;
-
-//   //     return acc;
-//   //   },
-//   //   {
-//   //     arrayInvalido: false,
-//   //     dadosValidos: true,
-//   //     produtosValidos: true,
-//   //     produtoExiste: true,
-//   //     produtoAtivo: true,
-//   //     quantidadeValida: true,
-//   //     quantidadeEstoqueValida: true,
-//   //     valorTotal: 0,
-//   //   },
-//   // );
-
-//   // if (!validarProdutos.dadosValidos) {
-//   //   return criarResposta(400, {
-//   //     msg: "O corpo da requisição precisa conter os campos produtoId e quantidade",
-//   //     dadosCorretos: {
-//   //       produtoId: "Número maior que zero",
-//   //       quantidade: "Número maior que zero",
-//   //     },
-//   //   });
-//   // }
-
-//   // if (validarProdutos.arrayInvalido) {
-//   //   return criarResposta(
-//   //     400,
-//   //     "O array produtosPedido precisa conter apenas objetos JSON válidos",
-//   //   );
-//   // }
-
-//   // if (!validarProdutos.produtosValidos) {
-//   //   return criarResposta(
-//   //     400,
-//   //     "O produtoId precisa ser um número maior que zero",
-//   //   );
-//   // }
-
-//   // if (!validarProdutos.produtoExiste) {
-//   //   return criarResposta(404, "Produto não encontrado");
-//   // }
-
-//   // if (!validarProdutos.produtoAtivo) {
-//   //   return criarResposta(
-//   //     400,
-//   //     "O produto precisa estar ativo para ser adicionado ao pedido",
-//   //   );
-//   // }
-
-//   // if (!validarProdutos.quantidadeValida) {
-//   //   return criarResposta(
-//   //     400,
-//   //     "A quantidade precisa ser um número maior que zero",
-//   //   );
-//   // }
-
-//   // validar se já tem esse produto na lista
-
-//   // const ids = new Set();
-
-//   // const existeDuplicado = produtosPedido.some((produto) => {
-//   //   if (ids.has(produto.produtoId)) {
-//   //     return true;
-//   //   }
-
-//   //   ids.add(produto.produtoId);
-//   //   return false;
-//   // });
-
-//   // if (existeDuplicado) {
-//   //   return criarResposta(
-//   //     400,
-//   //     "O array produtosPedido não pode conter produtos duplicados",
-//   //   );
-//   // }
-
-//   // if (!validarProdutos.quantidadeEstoqueValida) {
-//   //   return criarResposta(
-//   //     400,
-//   //     "A quantidade do produto no estoque é menor do que a quantidade pedida",
-//   //   );
-//   // }
-
-//   // const dadosPedido = {
-//   //   id: proxIdPedido,
-//   //   usuarioId,
-//   //   produtosPedido,
-//   //   data: new Date(),
-//   //   status: "pendente",
-//   //   valorTotal: validarProdutos.valorTotal,
-//   // };
-
-//   addProxIdPedido();
-//   // pedidos.push(dadosPedido);
-
-//   // atualizar a quantidade do produto
-//   dadosPedido.produtosPedido.map((element) => {
-//     const produto = produtos.find(
-//       (produto) => produto.id === element.produtoId,
-//     );
-//     produto.quantidadeEstoque -= element.quantidade;
-//   });
-
-//   return criarResposta(200, "Pedido cadastrado!", structuredClone(dadosPedido));
-// };
-
 export const cadastrarPedido = (dados) => {
-  for (const item of dados.produtosPedido) {
-    console.log(item);
+  if (!validarObjeto(dados)) {
+    return criarResposta(
+      400,
+      "O corpo da requisição precisa ser um objeto JSON válido",
+    );
+  }
 
-    if (!validarNumeroPositivo(item.produtoId)) {
-      return criarResposta(400, `dados errado ${item.produtoId}`);
+  const { usuarioId, produtosPedido } = dados;
+
+  // validando se contem os campos necessarios
+  if (!("usuarioId" in dados) || !("produtosPedido" in dados)) {
+    return criarResposta(
+      400,
+      "O corpo da requisição precisa conter os campos usuarioId e produtosPedido",
+    );
+  }
+
+  if (!validarNumeroPositivo(usuarioId)) {
+    return criarResposta(
+      400,
+      "O usuarioId precisa ser um número maior que zero",
+    );
+  }
+
+  // buscar o usuario e validar se está ativo
+  const usuario = usuarios.find((element) => element.id === usuarioId);
+  if (!usuario) {
+    return criarResposta(404, "Usuario não encontrado");
+  }
+  if (!usuario.ativo) {
+    return criarResposta(
+      400,
+      "O usuario precisa estar ativo para realizar pedidos",
+    );
+  }
+
+  // validar se enviaram um array
+  if (!Array.isArray(produtosPedido)) {
+    return criarResposta(400, "O campo produtosPedido precisa ser um array");
+  }
+
+  if (produtosPedido.length <= 0) {
+    return criarResposta(
+      400,
+      "O array produtosPedido precisa conter pelo menos um produto",
+    );
+  }
+  let valorTotal = 0;
+  for (const item of dados.produtosPedido) {
+    if (typeof item !== "object" || item === null) {
+      return criarResposta(
+        400,
+        "O array produtosPedido precisa conter apenas objetos JSON válidos",
+      );
     }
+    if (!("produtoId" in item) || !("quantidade" in item)) {
+      return criarResposta(
+        400,
+        "O corpo da requisição precisa conter os campos produtoId e quantidade",
+      );
+    }
+
+    const { produtoId, quantidade } = item;
+
+    //  validar se o id e um numero positivo
+    if (!validarNumeroPositivo(produtoId)) {
+      return criarResposta(
+        400,
+        "O produtoId precisa ser um número maior que zero",
+      );
+    }
+
+    const produto = produtos.find((element) => element.id === produtoId);
+
+    if (!produto) {
+      return criarResposta(404, "Produto não encontrado");
+    }
+
+    if (!produto.ativo) {
+      return criarResposta(400, "O produto precisa estar ativo");
+    }
+
+    if (!validarNumeroPositivo(quantidade)) {
+      return criarResposta(
+        400,
+        "A quantidade pedida, precisa ser um numero positivo",
+      );
+    }
+
+    if (produto.quantidadeEstoque < quantidade) {
+      return criarResposta(
+        400,
+        "A quantidade do produto no estoque é menor do que a quantidade pedida",
+      );
+    }
+
+    item.preco = produto.preco * quantidade;
+
+    valorTotal += item.preco;
+
+    // validar se já tem esse produto na lista
+
+    const ids = new Set();
+
+    const existeDuplicado = produtosPedido.some((produto) => {
+      if (ids.has(produto.produtoId)) {
+        return true;
+      }
+
+      ids.add(produto.produtoId);
+      return false;
+    });
+
+    if (existeDuplicado) {
+      return criarResposta(
+        400,
+        "O array produtosPedido não pode conter produtos duplicados",
+      );
+    }
+
+    const dadosPedido = {
+      id: proxIdPedido,
+      usuarioId,
+      produtosPedido,
+      data: new Date(),
+      status: "pendente",
+      valorTotal: valorTotal,
+    };
+
+    addProxIdPedido();
+    pedidos.push(dadosPedido);
+
+    dadosPedido.produtosPedido.map((element) => {
+      const produto = produtos.find(
+        (produto) => produto.id === element.produtoId,
+      );
+      produto.quantidadeEstoque -= element.quantidade;
+    });
+
+    return criarResposta(
+      200,
+      "Pedido cadastrado!",
+      structuredClone(dadosPedido),
+    );
   }
 };
+
 export const atualizarStatusPedido = (id, status) => {
   // validar se o id e valido
 
@@ -385,7 +309,7 @@ export const calcularTotalPedido = (id) => {
   }
 
   const totalPedido = pedido.produtosPedido.reduce((acc, produto) => {
-    acc += produto.preco * produto.quantidade;
+    acc += produto.preco;
 
     return acc;
   }, 0);
@@ -398,9 +322,12 @@ export const calcularTotalPedido = (id) => {
 };
 
 export const gerarRelatorioPedidos = () => {
+  if (pedidos.length <= 0) {
+    return criarResposta(404, "Nenhum pedido foi criado");
+  }
   const relatorio = pedidos.reduce(
     (acc, pedido) => {
-      acc.totalPedido += 1;
+      acc.totalPedidos += 1;
       if (pedido.status === "pendente") {
         acc.pedidosPendentes += 1;
       }
@@ -414,26 +341,25 @@ export const gerarRelatorioPedidos = () => {
       }
 
       if (pedido.status !== "cancelado") {
-        acc.totalValorPedidos += pedido.valorTotal;
+        acc.valorTotalPedidos += pedido.valorTotal;
       }
 
       // console.log(acc.totalPedido - acc.pedidosCancelados);
       return acc;
     },
     {
-      totalPedido: 0,
+      totalPedidos: 0,
       pedidosPendentes: 0,
       pedidosConcluidos: 0,
       pedidosCancelados: 0,
       valorTotalPedidos: 0,
-      totalValorPedidos: 0,
       ticketMedio: 0,
     },
   );
 
   relatorio.ticketMedio =
-    relatorio.totalValorPedidos /
-    (relatorio.totalPedido - relatorio.pedidosCancelados);
+    relatorio.valorTotalPedidos /
+    (relatorio.totalPedidos - relatorio.pedidosCancelados);
 
   return criarResposta(200, "Relatorio gerado", structuredClone(relatorio));
 };
